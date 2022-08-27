@@ -3,10 +3,10 @@
 #include <DallasTemperature.h>
 
 // Data wire is plugged into port 2 on the Arduino
-#define ONE_WIRE_BUS 15
+#define ONE_WIRE_BUS 15 //onewire gpio pin
 #define TEMPERATURE_PRECISION 9
-#define MAXSENSORS 10
-#define MEASUREMENTS 3
+#define MAXSENSORS 10 //max device to search fpr on the bus.
+#define MEASUREMENTS 3 //measurements per cycle
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
 
@@ -14,14 +14,8 @@ OneWire oneWire(ONE_WIRE_BUS);
 DallasTemperature sensors(&oneWire);
 
 // arrays to hold device addresses
-DeviceAddress Thermometers[10];
+DeviceAddress Thermometers[MAXSENSORS];
 int detectedsensors = 0;
-// Assign address manually. The addresses below will need to be changed
-// to valid device addresses on your bus. Device address can be retrieved
-// by using either oneWire.search(deviceAddress) or individually via
-// sensors.getAddress(deviceAddress, index)
-// DeviceAddress Thermometer1 = { 0x28, 0x1D, 0x39, 0x31, 0x2, 0x0, 0x0, 0xF0 };
-// DeviceAddress Thermometer2   = { 0x28, 0x3F, 0x1C, 0x31, 0x2, 0x0, 0x0, 0x2 };
 
 void notify_num_sensors(int blink_times, int blink_delay) {
   for (int i=0; i < blink_times; i++){
@@ -41,28 +35,14 @@ void setup(void)
   // Start up the library
   sensors.begin();
 
-  // locate devices on the bus
-  //Serial.print("Locating devices...");
-  //Serial.print("Found ");
-  //Serial.print(sensors.getDeviceCount(), DEC);
-  //Serial.println(" devices.");
-
-  // report parasite power requirements
-  //Serial.print("Parasite power is: ");
-  //if (sensors.isParasitePowerMode()) Serial.println("ON");
-  //else Serial.println("OFF");
-
-  // Search for devices on the bus and assign based on an index. Ideally,
-  // you would do this to initially discover addresses on the bus and then
-  // use those addresses and manually assign them (see above) once you know
-  // the devices on your bus (and assuming they don't change).
-  //
-  // method 1: by index
+  // how many sensors are on the bus?. 
   
   for (int i=0; i<MAXSENSORS; i++){
     if (!sensors.getAddress(Thermometers[i], i)) break;
     detectedsensors = i + 1;
   }
+
+  // blink the led if supported
 #ifdef LED_BUILTIN
   pinMode(LED_BUILTIN, OUTPUT);
   notify_num_sensors(detectedsensors, 400);
@@ -70,12 +50,8 @@ void setup(void)
 
   // Must be called before search()
   oneWire.reset_search();
-  // assigns the first address found to Thermometer1
-  // if (!oneWire.search(Thermometer1)) Serial.println("Unable to find address for Thermometer1");
-  // assigns the seconds address found to Thermometer2
-  //if (!oneWire.search(Thermometer2)) Serial.println("Unable to find address for Thermometer2");
 
-  // set the resolution
+  // set the resolution for all sensors
   for (int i=0; i<detectedsensors; i++){
     sensors.setResolution(Thermometers[i], TEMPERATURE_PRECISION);
   }
@@ -118,7 +94,7 @@ void printData(DeviceAddress deviceAddress)
 }
 
 /*
-   Main function, calls the temperatures in a loop.
+   Main function, calls the temperatures in a loop, if something has been received on the serialport.
 */
 void loop(void)
 {
@@ -133,9 +109,11 @@ void loop(void)
   if (!Serial.available()){
     return;
   }
+  //"consume" the data
   while (Serial.available()){
     Serial.read();
   }
+  //do MEASUREMENTS measurements and send it to the serialport
   for (int m=0; m<MEASUREMENTS; m++){
     Serial.print("{");  
     for (int i=0; i<detectedsensors; i++){
