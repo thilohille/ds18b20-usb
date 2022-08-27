@@ -5,13 +5,17 @@ import time, logging
 from io import StringIO
 import json
 from temperaturereader import TemperatureReader,TemperatureReaderCrash
-DEBUG = True
+DEBUG = False
 MAXERRORS = 10
 SERIALPORT =  { 
         "port": "/dev/ttyUSB0",
         "baudrate": 115200
 }
 
+def writeSensorData(address, SensorData):
+	datetime_local = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+	print("{} {} C: {} F: {}".format(datetime_local, address, SensorData[0], SensorData[1]))
+	
  
 
 def main(argv):
@@ -50,10 +54,11 @@ def main(argv):
                 time.sleep(0.3)
                 errcounter += 1
                 continue
-            print(obj);
+            #print(obj);
+            for i in obj:
+                writeSensorData(i, obj[i])
             break
     Reader.close()
-    #scan(scanner, cfg, data)
     
 if __name__ == "__main__":
    main(sys.argv[1:])
