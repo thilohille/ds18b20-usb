@@ -13,7 +13,7 @@ There is a model for a sensorhousing  in the stl-folder. Print it shove it in an
 ![Sensor in housing](img/sensorhousing.jpg?raw=true "Sensor in housing")
 
 # LED blinking pattern
-If plugged powered up the controller scans the onewire bus and slowly blinks he onboard LED for each detected sensor.
+If powered up the controller scans the onewire bus and slowly blinks he onboard LED for each detected sensor.
 3 sensors connected (and detected) = 3 x blinky.
 The led pattern is repeated faster for each measurement cycle.
 Tested on an ESP32 DevKit. It should work with other boards with leds if the constant LED_BUILTIN is defined.
