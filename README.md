@@ -11,8 +11,8 @@ We have a temperature monitoring system based on ds1820 sensors connected to an 
 I soldered the sensors and cables to a small interconnect 3x3 pcb-strip-board. 
 There is a model for a sensorhousing  in the stl-folder. Print it shove it in and secure it with zip-ties. mount with zipties or ducttape.    
 
-# Led pattern
+# LED blinking pattern
 If plugged powered up the controller scans the onewire bus and slowly blinks he onboard LED for each detected sensor.
 3 sensors connected (and detected) = 3 x blinky.
-The led pattern is repeeated faster for each measurement cycle.
+The led pattern is repeated faster for each measurement cycle.
 Tested on an ESP32 DevKit. It should work with other boards with leds if the constant LED_BUILTIN is defined.
