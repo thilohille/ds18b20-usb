@@ -25,7 +25,12 @@ class TemperatureReader:
         if len(line) > 0:
             logging.debug("read: "+line.rstrip('\0'))
         logging.debug("read done")
-        return line
+        return line;
+ 
+    def startmeasurement(self):
+        logging.debug("reader start")
+        self.ser.write(b'\0')
+        return
 
     def close(self):
         logging.debug("close start")

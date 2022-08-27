@@ -31,10 +31,11 @@ def main(argv):
 
     errcounter = 0
     Reader = TemperatureReader(SERIALPORT)
+    Reader.startmeasurement()
     while errcounter<MAXERRORS:      
         line = Reader.read()
-        if len(line) != 0:
-            time.sleep(0.2)
+        if line and len(line) != 0:
+            #time.sleep(0.2)
             #continue
             #logging.info(line)
             try:
@@ -51,6 +52,7 @@ def main(argv):
                     valueerr = True
                     break
             if valueerr:
+                logging.debug("Valueerror = ")
                 time.sleep(0.3)
                 errcounter += 1
                 continue

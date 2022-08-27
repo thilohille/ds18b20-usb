@@ -6,6 +6,7 @@
 #define ONE_WIRE_BUS 15
 #define TEMPERATURE_PRECISION 9
 #define MAXSENSORS 10
+#define MEASUREMENTS 3
 // Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
 
@@ -21,6 +22,15 @@ int detectedsensors = 0;
 // sensors.getAddress(deviceAddress, index)
 // DeviceAddress Thermometer1 = { 0x28, 0x1D, 0x39, 0x31, 0x2, 0x0, 0x0, 0xF0 };
 // DeviceAddress Thermometer2   = { 0x28, 0x3F, 0x1C, 0x31, 0x2, 0x0, 0x0, 0x2 };
+
+void notify_num_sensors(int blink_times, int blink_delay) {
+  for (int i=0; i < blink_times; i++){
+    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+    delay(blink_delay);                       // wait for a second
+    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+    delay(blink_delay);                       // wait for a second
+  }
+}
 
 void setup(void)
 {
@@ -53,14 +63,11 @@ void setup(void)
     if (!sensors.getAddress(Thermometers[i], i)) break;
     detectedsensors = i + 1;
   }
+#ifdef LED_BUILTIN
+  pinMode(LED_BUILTIN, OUTPUT);
+  notify_num_sensors(detectedsensors, 400);
+#endif
 
-  // method 2: search()
-  // search() looks for the next device. Returns 1 if a new address has been
-  // returned. A zero might mean that the bus is shorted, there are no devices,
-  // or you have already retrieved all of them. It might be a good idea to
-  // check the CRC to make sure you didn't get garbage. The order is
-  // deterministic. You will always get the same devices in the same order
-  //
   // Must be called before search()
   oneWire.reset_search();
   // assigns the first address found to Thermometer1
@@ -122,14 +129,25 @@ void loop(void)
   //Serial.println("DONE");
 
   // print the device information
-  Serial.print("{");  
   delay(50);
-  for (int i=0; i<detectedsensors; i++){
-    printData(Thermometers[i]);
-    delay(30);
-    if (i < detectedsensors-1){
-      Serial.print(",");  
-    }
+  if (!Serial.available()){
+    return;
   }
-  Serial.println("}");  
+  while (Serial.available()){
+    Serial.read();
+  }
+  for (int m=0; m<MEASUREMENTS; m++){
+    Serial.print("{");  
+    for (int i=0; i<detectedsensors; i++){
+      printData(Thermometers[i]);
+      delay(30);
+      if (i < detectedsensors-1){
+        Serial.print(",");  
+      }
+    }
+    Serial.println("}");  
+  }
+#ifdef LED_BUILTIN
+  notify_num_sensors(detectedsensors, 100);
+#endif
 }
