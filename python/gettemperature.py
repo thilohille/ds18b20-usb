@@ -4,17 +4,14 @@ import sys, getopt, copy
 import time, logging
 from io import StringIO
 import json
+import yaml
 from temperaturereader import TemperatureReader,TemperatureReaderCrash
 DEBUG = False
 MAXERRORS = 10
-SERIALPORT =  { 
-        "port": "/dev/ttyUSB0",
-        "baudrate": 115200
-}
 
-def writeSensorData(address, SensorData):
+def writeSensorData(address, SensorData, Config):
 	datetime_local = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-	print("{} {} C: {} F: {}".format(datetime_local, address, SensorData[0], SensorData[1]))
+	print("{} {} C: {} F: {}".format(datetime_local, Config.sensors.get(address,address), SensorData[0], SensorData[1]))
 	
  
 
@@ -29,8 +26,11 @@ def main(argv):
         level=logging.INFO,
         datefmt='%Y-%m-%d %H:%M:%S')  
 
+    with open('config.yml', 'r') as file:
+        Config = yaml.safe_load(file)
+    print(Config)
     errcounter = 0
-    Reader = TemperatureReader(SERIALPORT)
+    Reader = TemperatureReader(Config['serial'])
     Reader.startmeasurement()
     while errcounter<MAXERRORS:      
         line = Reader.read()
@@ -58,7 +58,7 @@ def main(argv):
                 continue
             #print(obj);
             for i in obj:
-                writeSensorData(i, obj[i])
+                writeSensorData(i, obj[i], Config)
             break
     Reader.close()
     

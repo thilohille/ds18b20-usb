@@ -1,0 +1,9 @@
+#serial port
+serial:
+    port: "/dev/ttyUSB0"
+    baudrate: 115200
+
+#sensor-id to name map. <ID>:<NAME> 
+sensors:
+   XXXXXXXXXXXXXXXX: "Sensor_1"
+   YYYYYYYYYYYYYYYY: "Sensor_2"
