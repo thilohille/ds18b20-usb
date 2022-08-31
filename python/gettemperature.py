@@ -11,7 +11,7 @@ MAXERRORS = 10
 
 def writeSensorData(address, SensorData, Config):
 	datetime_local = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
-	print("{} {} C: {} F: {}".format(datetime_local, Config.sensors.get(address,address), SensorData[0], SensorData[1]))
+	print("{} {} C: {} F: {}".format(datetime_local, Config["sensors"].get(address,address), SensorData[0], SensorData[1]))
 	
  
 
@@ -28,7 +28,6 @@ def main(argv):
 
     with open('config.yml', 'r') as file:
         Config = yaml.safe_load(file)
-    print(Config)
     errcounter = 0
     Reader = TemperatureReader(Config['serial'])
     Reader.startmeasurement()
