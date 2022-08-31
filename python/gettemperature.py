@@ -5,6 +5,7 @@ import time, logging
 from io import StringIO
 import json
 import yaml
+import os
 from temperaturereader import TemperatureReader,TemperatureReaderCrash
 DEBUG = False
 MAXERRORS = 10
@@ -26,7 +27,7 @@ def main(argv):
         level=logging.INFO,
         datefmt='%Y-%m-%d %H:%M:%S')  
 
-    with open('config.yml', 'r') as file:
+    with open(os.path.dirname(os.path.realpath(__file__)) + '/config.yml', 'r') as file:
         Config = yaml.safe_load(file)
     errcounter = 0
     Reader = TemperatureReader(Config['serial'])
