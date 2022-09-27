@@ -165,7 +165,28 @@ uint64_t adresstoint(DeviceAddress deviceAddress){
   return result;
 }
 
+void inttoadress(uint64_t integer, DeviceAddress &deviceAddress){
+  uint64_t mask;
+  for (int i=0; i<8; i++){
+    mask = uint64_t(0xff) << i*8;
+    deviceAddress[7-i] = uint64_t(integer & mask) >> (i * 8);
+  }
+}
 
+void formatAddress(uint64_t addressnumeric, String &line){
+    DeviceAddress address;
+    inttoadress(addressnumeric, address);
+    formatAddress(address, line);
+}
+
+void formatAddress(DeviceAddress address, String &line){
+    for (uint8_t i = 0; i < 8; i++)
+    {
+      //Serial.print("0x");
+      if (address[i] < 0x10) line+="0";
+      line += String(address[i], HEX);
+    }
+}
 
 // main function to read information from a local sensor
 int readLocalSensor(DeviceAddress deviceAddress)
@@ -187,8 +208,9 @@ int readLocalSensor(DeviceAddress deviceAddress)
 // main function to print information about a device
 void formatSensorData(uint64_t sensorid, float value, String &line){
   line += "\"";
-  line += String(((uint32_t)((sensorid >> 32) & 0xFFFFFFFF)),HEX);
-  line += String(((uint32_t)(sensorid & 0xFFFFFFFF)),HEX);
+  formatAddress(sensorid, line);
+  //line += String(((uint32_t)((sensorid >> 32) & 0xFFFFFFFF)),HEX);
+  //line += String(((uint32_t)(sensorid & 0xFFFFFFFF)),HEX);
   line+= "\": [\"";
   line += String(value);
   line += "\",\"";
